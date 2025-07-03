@@ -35,12 +35,11 @@ model Friend {
 }
 
 model Conversation {
-  id            Int       @id @default(autoincrement())
-  userA         Int       @map("user_a")
-  userB         Int       @map("user_b")
-  userKeyPair   String    @unique @map("user_key_pair")
-  messages      Message[]
-  lastMessageId Int?      @map("last_message_id")
+  id          Int       @id @default(autoincrement())
+  userA       Int       @map("user_a")
+  userB       Int       @map("user_b")
+  userKeyPair String    @unique @map("user_key_pair")
+  messages    Message[]
 
   @@map("conversations")
 }
