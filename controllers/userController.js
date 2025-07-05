@@ -6,12 +6,16 @@ const prisma = new PrismaClient();
 
 async function createUser(req, res) {
     try {
-        const { firstName, lastName, email, password } = req.body;
+        let { firstName, lastName, email, password } = req.body;
         if (!firstName || !lastName || !email || !password) {
             return res.status(400).json({
                 message: "Missing fields"
             })
         }
+
+        firstName = firstName[0].toUpperCase() + firstName.slice(1).toLowerCase()
+        lastName = lastName[0].toUpperCase() + lastName.slice(1).toLowerCase()
+        email = email.toLowerCase()
 
         const existingUser = await prisma.user.findUnique({
             where: {
@@ -40,7 +44,9 @@ async function createUser(req, res) {
             throw new Error("Failed to create new user")
         }
 
-        res.status(201).json(user)
+        const { password: discard, ...safeUser } = user;
+
+        res.status(201).json({ safeUser })
 
     } catch (error) {
         res.status(503).json({
@@ -210,9 +216,9 @@ async function updateUserSettings(req, res) {
 
         const updateData = {}
 
-        if (firstName !== undefined) updateData.firstName = firstName;
-        if (lastName !== undefined) updateData.lastName = lastName;
-        if (email !== undefined) updateData.email = email;
+        if (firstName !== undefined) updateData.firstName = firstName[0].toUpperCase() + firstName.slice(1).toLowerCase();
+        if (lastName !== undefined) updateData.lastName = lastName[0].toUpperCase() + lastName.slice(1).toLowerCase();
+        if (email !== undefined) updateData.email = email = email.toLowerCase();
         if (password) updateData.password = await bcrypt.hash(password, 10);
 
         const userId = req.user.id;
