@@ -46,7 +46,7 @@ async function createUser(req, res) {
 
         const { password: discard, ...safeUser } = user;
 
-        res.status(201).json({ safeUser })
+        res.status(201).json({ message: "User created successfully" })
 
     } catch (error) {
         res.status(503).json({
