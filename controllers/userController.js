@@ -216,9 +216,9 @@ async function updateUserSettings(req, res) {
 
         const updateData = {}
 
-        if (firstName !== undefined) updateData.firstName = firstName[0].toUpperCase() + firstName.slice(1).toLowerCase();
-        if (lastName !== undefined) updateData.lastName = lastName[0].toUpperCase() + lastName.slice(1).toLowerCase();
-        if (email !== undefined) updateData.email = email = email.toLowerCase();
+        if (firstName) updateData.firstName = firstName[0].toUpperCase() + firstName.slice(1).toLowerCase();
+        if (lastName) updateData.lastName = lastName[0].toUpperCase() + lastName.slice(1).toLowerCase();
+        if (email) updateData.email = email.toLowerCase();
         if (password) updateData.password = await bcrypt.hash(password, 10);
 
         const userId = req.user.id;
