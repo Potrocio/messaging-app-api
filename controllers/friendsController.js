@@ -31,10 +31,49 @@ async function createNewFriendInstance(req, res) {
             }
         })
 
-        res.status(201).json({ message: "Friend instance created" })
+        return res.status(201).json({ message: "Friend request sent" })
 
     } catch (error) {
         console.log("createNewFriendInstance", error)
+        res.status(503).json({
+            message: "Internal server error"
+        })
+    }
+}
+
+async function acceptFriendRequest(req, res) {
+    try {
+        const { userKeyPair } = req.body
+
+        if (!userKeyPair) return res.status(400).json({ message: "Missing friendId" })
+
+        const existing = await prisma.friend.findFirst({
+            where: {
+                userKeyPair,
+                status: 'pending'
+            },
+            select: {
+                id: true
+            }
+        })
+
+        if (existing) {
+            await prisma.friend.update({
+                where: {
+                    userKeyPair
+                },
+                data: {
+                    status: "friends"
+                }
+            })
+        } else {
+            return res.status(404).json({ message: "Friend instance not found" })
+        }
+
+        return res.status(201).json({ message: "Friend request accepted" })
+
+    } catch (error) {
+        console.log("acceptFriendRequest", error)
         res.status(503).json({
             message: "Internal server error"
         })
@@ -126,7 +165,7 @@ async function removeFriend(req, res) {
             }
         })
 
-        res.status(200).json({ message: "Friend removed successfully" })
+        return res.status(200).json({ message: "Friend removed successfully" })
 
     } catch (error) {
         console.log("removeFriend", error)
@@ -139,5 +178,6 @@ async function removeFriend(req, res) {
 module.exports = {
     createNewFriendInstance,
     retrieveAllPendingFriends,
-    removeFriend
+    removeFriend,
+    acceptFriendRequest
 }

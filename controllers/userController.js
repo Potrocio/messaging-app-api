@@ -57,14 +57,19 @@ async function createUser(req, res) {
 
 async function AuthenticateUser(req, res) {
     try {
-        const { email, password } = req.body;
+        let { email, password } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ message: "Missing fields" })
         }
 
-        const user = await prisma.user.findUnique({
-            where: { email }
+        const user = await prisma.user.findFirst({
+            where: {
+                email: {
+                    equals: email,
+                    mode: 'insensitive'
+                }
+            }
         })
 
         if (!user) {
