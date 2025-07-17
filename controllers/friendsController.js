@@ -112,6 +112,14 @@ async function removeFriend(req, res) {
         const { userKeyPair } = req.params;
         if (!userKeyPair) return res.status(400).json({ message: "Missing userKeyPair param" })
 
+        const friendInstanceExists = await prisma.friend.findUnique({
+            where: {
+                userKeyPair
+            }
+        })
+
+        if (!friendInstanceExists) return res.status(404).json({ message: "Friend instance does not exist" })
+
         await prisma.friend.delete({
             where: {
                 userKeyPair

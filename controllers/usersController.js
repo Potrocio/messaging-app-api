@@ -12,7 +12,6 @@ async function retrieveUsersUsingQueryParameter(req, res) {
         firstName = firstName.trim()
         lastName = lastName.trim()
 
-
         const users = await prisma.user.findMany({
             where: {
                 firstName: {
@@ -54,10 +53,20 @@ async function retrieveUsersUsingQueryParameter(req, res) {
         })
 
 
-        const unknownUsers = userKeyPairs.filter((keyPair) => {
+        const unknownUsersKeyPairs = userKeyPairs.filter((keyPair) => {
             if (!knownIds.includes(keyPair)) {
                 return keyPair
             }
+        })
+
+        const unknownFriendIds = unknownUsersKeyPairs.map((keyPair) => {
+            const userA = Number(keyPair.split(',')[0])
+            const userB = Number(keyPair.split(',')[1])
+            return userId == userA ? userB : userA;
+        })
+
+        const unknownUsers = users.filter((friend) => {
+            return unknownFriendIds.includes(friend.id)
         })
 
         return res.status(200).json({ unknownUsers })
