@@ -41,6 +41,51 @@ async function createNewFriendInstance(req, res) {
     }
 }
 
+async function retrieveAllFriends(req, res) {
+    try {
+        const userId = req.user.id;
+        const friendsInstances = await prisma.friend.findMany({
+            where: {
+                OR: [
+                    { userA: userId },
+                    { userB: userId }
+                ],
+                status: "friends"
+            },
+            select: {
+                id: true,
+                userA: true,
+                userB: true
+            }
+        })
+        if (friendsInstances.length === 0) return res.status(404).json({ message: "No friends found" })
+
+        const friendIds = friendsInstances.map((friend) => {
+            const friendId = friend.userA === userId ? friend.userB : userA;
+            return friendId
+        })
+
+        const friends = await prisma.user.findMany({
+            where: {
+                id: { in: friendIds }
+            },
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true
+            }
+        })
+
+        return res.status(201).json({ friends })
+
+    } catch (error) {
+        console.log("retrieveAllFriends", error)
+        res.status(503).json({
+            message: "Internal server error"
+        })
+    }
+}
+
 async function acceptFriendRequest(req, res) {
     try {
         const { userKeyPair } = req.body
@@ -177,6 +222,7 @@ async function removeFriend(req, res) {
 
 module.exports = {
     createNewFriendInstance,
+    retrieveAllFriends,
     retrieveAllPendingFriends,
     removeFriend,
     acceptFriendRequest
