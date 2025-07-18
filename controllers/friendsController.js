@@ -55,7 +55,7 @@ async function retrieveAllFriends(req, res) {
             select: {
                 id: true,
                 userA: true,
-                userB: true
+                userB: true,
             }
         })
         if (friendsInstances.length === 0) return res.status(404).json({ message: "No friends found" })

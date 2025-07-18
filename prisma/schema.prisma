@@ -45,12 +45,13 @@ model Conversation {
 }
 
 model Message {
-  id             Int           @id @default(autoincrement())
-  conversation   Conversation? @relation(fields: [conversationId], references: [id])
-  conversationId Int           @map("conversation_id")
-  senderId       Int           @map("sender_id")
-  content        String
-  createdAt      DateTime      @default(now()) @map("created_at")
+  id                Int           @id @default(autoincrement())
+  conversation      Conversation? @relation(fields: [conversationId], references: [id])
+  conversationId    Int           @map("conversation_id")
+  senderId          Int           @map("sender_id")
+  receiverFirstName String        @map("receiver_first_name")
+  content           String
+  createdAt         DateTime      @default(now()) @map("created_at")
 
   @@map("messages")
 }

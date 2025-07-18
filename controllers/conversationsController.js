@@ -53,10 +53,11 @@ async function retrieveConversationUsingId(req, res) {
 async function createNewMessage(req, res) {
 
     try {
-        const { userKeyPair } = req.params;
-        const { senderId, content } = req.body;
+        const { userKeyPair, content } = req.body;
 
-        if (!userKeyPair || !senderId || !content) return res.status(400).json({ message: "Missing fields" })
+        if (!userKeyPair || !content) return res.status(400).json({ message: "Missing fields" })
+        const userId = req.user.id
+        console.log(userKeyPair, content, userId)
 
         // Extract the user Ids using the userKeyPair as reference and turn into a number
         const [userA, userB] = userKeyPair.split(',').map((userId) => {
@@ -66,6 +67,18 @@ async function createNewMessage(req, res) {
         if (isNaN(userA) || isNaN(userB)) {
             return res.status(400).json({ message: "Invalid user Id" });
         }
+
+        const receiverId = userId === userA ? userB : userA;
+
+        const receiver = await prisma.user.findUnique({
+            where: {
+                id: receiverId
+            },
+            select: {
+                id: true,
+                firstName: true,
+            }
+        })
 
         // Check if the conversation already exists
         let conversation = await prisma.conversation.findUnique({
@@ -89,7 +102,8 @@ async function createNewMessage(req, res) {
         await prisma.message.create({
             data: {
                 conversationId: conversation.id,
-                senderId,
+                senderId: userId,
+                receiverFirstName: receiver.firstName,
                 content
             }
         })
