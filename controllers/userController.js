@@ -168,6 +168,7 @@ async function queryHomepageData(req, res) {
             },
             select: {
                 id: true,
+                userKeyPair: true,
                 messages: {
                     orderBy: { id: 'desc' },
                     take: 1,
@@ -245,11 +246,40 @@ async function updateUserSettings(req, res) {
     }
 }
 
+async function retrieveUser(req, res) {
+    try {
+        const id = Number(req.params.id);
+        if (!id) return res.status(400).json({ message: "Missing friend Id" })
+
+        const friend = await prisma.user.findUnique({
+            where: {
+                id
+            },
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true
+            }
+        })
+
+        if (!friend) return res.status(404).json({ message: "User not found" })
+
+        return res.status(200).json({ friend })
+
+    } catch (error) {
+        console.log("retrieveUser", error)
+        res.status(503).json({
+            message: "Internal server error"
+        })
+    }
+}
+
 module.exports = {
     createUser,
     AuthenticateUser,
     authenticateToken,
     queryHomepageData,
     queryUserSettings,
-    updateUserSettings
+    updateUserSettings,
+    retrieveUser
 }

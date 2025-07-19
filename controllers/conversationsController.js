@@ -35,6 +35,15 @@ async function retrieveConversationUsingId(req, res) {
         const conversation = await prisma.conversation.findUnique({
             where: {
                 id
+            },
+            select: {
+                id: true,
+                userA: true,
+                userB: true,
+                userKeyPair: true,
+                messages: {
+                    orderBy: { id: 'asc' },
+                }
             }
         })
 
@@ -57,7 +66,6 @@ async function createNewMessage(req, res) {
 
         if (!userKeyPair || !content) return res.status(400).json({ message: "Missing fields" })
         const userId = req.user.id
-        console.log(userKeyPair, content, userId)
 
         // Extract the user Ids using the userKeyPair as reference and turn into a number
         const [userA, userB] = userKeyPair.split(',').map((userId) => {
